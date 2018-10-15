@@ -29,6 +29,12 @@ def GetUserInput(prompt, **kwoptions):
             print("Thanks anyway!")
             raise #raise the SystemExit exception again to exit the program
 
+def GetYesNo(prompt):
+    """
+    Get user input to the prompt. Only allow yes or no as response. Return y/n.
+    """
+    return GetUserInput(prompt, y="yes", n="no")
+
 def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
     """
     Let the user choose a number from the min_opt to the max_opt. Return that number
