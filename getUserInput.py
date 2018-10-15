@@ -35,6 +35,14 @@ def GetYesNo(prompt):
     """
     return GetUserInput(prompt, y="yes", n="no")
 
+def GetTrueFalse(prompt):
+    """
+    Get user input to the prompt. Only allow boolean response. Return True or False.
+    """
+    if GetUserInput(prompt, t="True", f="False") == "t":
+        return True
+    return False
+
 def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
     """
     Let the user choose a number from the min_opt to the max_opt. Return that number
