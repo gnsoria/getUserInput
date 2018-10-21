@@ -25,8 +25,11 @@ def GetUserInput(prompt, **kwoptions):
                 quit()
         
             print("That wasn't one of the options.",)
+        except TypeError:
+            print("\n\n")
+            raise
         except SystemExit:
-            print("Thanks anyway!")
+            print("Thanks!")
             raise #raise the SystemExit exception again to exit the program
 
 def GetYesNo(prompt):
