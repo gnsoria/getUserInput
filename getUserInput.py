@@ -13,10 +13,10 @@ def GetUserInput(prompt, **kwoptions):
 
     while True:
         try:
-            print(TruncateAtMax(prompt))
+            print(_TruncateAtMax(prompt))
             for key in kwoptions:
                 print(" - '{0}' for '{1}'".format(key.ljust(space), \
-                    TruncateAtMax(kwoptions[key], max_len=60, spacer=space + 11)))
+                    _TruncateAtMax(kwoptions[key], max_len=60, spacer=space + 11)))
 
             user_choice = input("")
             if user_choice in kwoptions:
@@ -29,8 +29,7 @@ def GetUserInput(prompt, **kwoptions):
             print("\n\n")
             raise
         except SystemExit:
-            print("Thanks!")
-            raise #raise the SystemExit exception again to exit the program
+            _SysExitMsg()
 
 def GetYesNo(prompt):
     """
@@ -53,7 +52,7 @@ def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
     Default min = 1
     Default max = 999,999,999 (almost a billion)
     """
-    prompt = TruncateAtMax(prompt)
+    prompt = _TruncateAtMax(prompt)
     
     if min_opt == max_opt:
         return max_opt
@@ -72,20 +71,18 @@ def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
         except ValueError:
             print("Please pick an integer.")
         except SystemExit:
-            print("Thanks anyway!")
-            raise #raise the SystemExit exception again to exit the program
+            _SysExitMsg()
         except:
             print("\nSomething went wrong...\n")
             raise
     return None
     
-def TruncateAtMax(str, max_len=80, spacer=1):
+def _TruncateAtMax(str, max_len=80, spacer=1):
     """
     Truncate a string at max length and continue on the next line. For example:
-    string = "this is a test of the truncate func"
-    max_len = 15
-
-    output:
+    >>>string = "this is a test of the truncate func"
+    >>>max_len = 15
+    >>>_TruncateAtMax(string, max_len)
     > this is a test 
     > of the truncate
     > func
@@ -112,3 +109,10 @@ def TruncateAtMax(str, max_len=80, spacer=1):
     truncated_str = spacing.join(display_str)
     
     return truncated_str[1:] if truncated_str[0] == "\n" else truncated_str[:]
+
+def _SysExitMsg(msg="Thanks!"):
+    """
+    A consistent process for SystemExit error catching
+    """
+    print(msg)
+    raise #raise the SystemExit exception again to exit the program
