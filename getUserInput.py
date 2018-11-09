@@ -1,13 +1,48 @@
 #!/usr/bin/env python
 
 """
-This module contains tools for getting input from a user.
+This module contains tools for getting input from a user. At any point, enter "quit", "exit", or "leave" to quit()
 """
 _EXIT_WORDS = ["quit", "exit", "leave"]
 
 def GetUserInput(prompt, **kwoptions):
     """
     Print out the prompt and then return the input as long as it matches one of the options (given as key/value pairs)
+
+    Example call:
+        >>> prompt = "Who is the strongest Avenger?"
+        >>> input_options = {"t":"Thor", "i":"Iron Man", "c":"Captain America", "h":"The Hulk"}
+        >>> response = GetUserInput(prompt, **input_options)
+        Who is the strongest Avenger?
+         - 't' for 'Thor'
+         - 'i' for 'Iron Man'
+         - 'c' for 'Captain America'
+         - 'h' for 'The Hulk'
+        h
+        >>> response
+        'h'
+    Of course, you can also define the kwoptions in the call:
+        >>> response = GetUserInput("Who is the strongest Avenger?", t="Thor", i="Iron Man", c="Captain America", h="The Hulk")
+        Who is the strongest Avenger?
+        - 't' for 'Thor'
+        - 'i' for 'Iron Man'
+        - 'c' for 'Captain America'
+        - 'h' for 'The Hulk'
+        h
+        >>> response
+        'h'
+    
+    Invalid results are rejected:
+        >>> response = GetUserInput("Who is the strongest Avenger?", t="Thor", i="Iron Man", c="Captain America", h="The Hulk")
+        Who is the strongest Avenger?
+        - 't' for 'Thor'
+        - 'i' for 'Iron Man'
+        - 'c' for 'Captain America'
+        - 'h' for 'The Hulk'
+        Ant-Man
+        That wasn't one of the options.
+        Who is the strongest Avenger?
+        ...
     """
     space = max(map(len, kwoptions))
 
@@ -33,13 +68,37 @@ def GetUserInput(prompt, **kwoptions):
 
 def GetYesNo(prompt):
     """
-    Get user input to the prompt. Only allow yes or no as response. Return y/n.
+    Calls GetUserInput and only allows yes or no as response. Return y/n.
+
+    Example:
+        >>> response = GetYesNo("Is Footloose still the greatest movie ever?")
+        Is Footloose still the greatest movie ever?
+        - 'y' for 'yes'
+        - 'n' for 'no'
+        It never was!
+        That wasn't one of the options.
+        Is Footloose still the greatest movie ever?
+        - 'y' for 'yes'
+        - 'n' for 'no'
+        n
+        >>> response
+        'n'
+
     """
     return GetUserInput(prompt, y="yes", n="no")
 
 def GetTrueFalse(prompt):
     """
-    Get user input to the prompt. Only allow boolean response. Return True or False.
+    Calls GetUserInput and only allows boolean response. Return True or False.
+
+    Example:
+        >>> GetTrueFalse("True or False - Star-Lord was responsible for the team losing on Titan:")
+        True or False - Star-Lord was responsible for the team losing on Titan:
+        - 't' for 'True'
+        - 'f' for 'False'
+        f
+        False
+        >>>
     """
     if GetUserInput(prompt, t="True", f="False") == "t":
         return True
@@ -51,6 +110,31 @@ def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
     
     Default min = 1
     Default max = 999,999,999 (almost a billion)
+
+    Example (no min/max):
+        >>> guess = GetUserIntegerChoice("How scenarios did Doctor Strange see in Infinity War?")
+        How scenarios did Doctor Strange see in Infinity War?
+        (min = 1, max = 999,999,999)
+        Fourteen million
+        Please pick an integer.
+        How scenarios did Doctor Strange see in Infinity War?
+        (min = 1, max = 999,999,999)
+        14000605
+        >>> guess
+        14000605
+    
+    Example (with min/max):
+        >>> guess = GetUserIntegerChoice("Pick a number between 1 and 12!", 1, 12)
+        Pick a number between 1 and 12!
+        (min = 1, max = 12)
+        13
+        Please pick a number between 1 and 12.
+        Pick a number between 1 and 12!
+        (min = 1, max = 12)
+        2
+        >>> guess
+        2
+
     """
     prompt = _TruncateAtMax(prompt)
     
