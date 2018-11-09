@@ -148,7 +148,7 @@ def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
             if num_choice in _EXIT_WORDS:
                 quit()
                 
-            num_choice = int(num_choice)
+            num_choice = int(float(num_choice))
             if eval("{0}<={1}<={2}".format(min_opt, num_choice, max_opt)):
                 return num_choice      
             print("Please pick a number between {0} and {1}.".format(min_opt, max_opt),)
