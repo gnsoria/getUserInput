@@ -5,14 +5,14 @@ This module contains tools for getting input from a user. At any point, enter "q
 """
 _EXIT_WORDS = ["quit", "exit", "leave"]
 
-def GetUserInput(prompt, **kwoptions):
+def GetStringChoice(prompt, **kwoptions):
     """
     Print out the prompt and then return the input as long as it matches one of the options (given as key/value pairs)
 
     Example call:
         >>> prompt = "Who is the strongest Avenger?"
         >>> input_options = {"t":"Thor", "i":"Iron Man", "c":"Captain America", "h":"The Hulk"}
-        >>> response = GetUserInput(prompt, **input_options)
+        >>> response = GetStringChoice(prompt, **input_options)
         Who is the strongest Avenger?
          - 't' for 'Thor'
          - 'i' for 'Iron Man'
@@ -22,7 +22,7 @@ def GetUserInput(prompt, **kwoptions):
         >>> response
         'h'
     Of course, you can also define the kwoptions in the call:
-        >>> response = GetUserInput("Who is the strongest Avenger?", t="Thor", i="Iron Man", c="Captain America", h="The Hulk")
+        >>> response = GetStringChoice("Who is the strongest Avenger?", t="Thor", i="Iron Man", c="Captain America", h="The Hulk")
         Who is the strongest Avenger?
         - 't' for 'Thor'
         - 'i' for 'Iron Man'
@@ -33,7 +33,7 @@ def GetUserInput(prompt, **kwoptions):
         'h'
     
     Invalid results are rejected:
-        >>> response = GetUserInput("Who is the strongest Avenger?", t="Thor", i="Iron Man", c="Captain America", h="The Hulk")
+        >>> response = GetStringChoice("Who is the strongest Avenger?", t="Thor", i="Iron Man", c="Captain America", h="The Hulk")
         Who is the strongest Avenger?
         - 't' for 'Thor'
         - 'i' for 'Iron Man'
@@ -68,7 +68,7 @@ def GetUserInput(prompt, **kwoptions):
 
 def GetYesNo(prompt):
     """
-    Calls GetUserInput and only allows yes or no as response. Return y/n.
+    Calls GetStringChoice and only allows yes or no as response. Return y/n.
 
     Example:
         >>> response = GetYesNo("Is Footloose still the greatest movie ever?")
@@ -85,11 +85,11 @@ def GetYesNo(prompt):
         'n'
 
     """
-    return GetUserInput(prompt, y="yes", n="no")
+    return GetStringChoice(prompt, y="yes", n="no")
 
 def GetTrueFalse(prompt):
     """
-    Calls GetUserInput and only allows boolean response. Return True or False.
+    Calls GetStringChoice and only allows boolean response. Return True or False.
 
     Example:
         >>> GetTrueFalse("True or False - Star-Lord was responsible for the team losing on Titan:")
@@ -100,11 +100,11 @@ def GetTrueFalse(prompt):
         False
         >>>
     """
-    if GetUserInput(prompt, t="True", f="False") == "t":
+    if GetStringChoice(prompt, t="True", f="False") == "t":
         return True
     return False
 
-def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
+def GetIntegerChoice(prompt, min_opt=1, max_opt=999999999):
     """
     Let the user choose a number from the min_opt to the max_opt. Return that number
     
@@ -112,7 +112,7 @@ def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
     Default max = 999,999,999 (almost a billion)
 
     Example (no min/max):
-        >>> guess = GetUserIntegerChoice("How scenarios did Doctor Strange see in Infinity War?")
+        >>> guess = GetIntegerChoice("How scenarios did Doctor Strange see in Infinity War?")
         How scenarios did Doctor Strange see in Infinity War?
         (min = 1, max = 999,999,999)
         Fourteen million
@@ -124,7 +124,7 @@ def GetUserIntegerChoice(prompt, min_opt=1, max_opt=999999999):
         14000605
     
     Example (with min/max):
-        >>> guess = GetUserIntegerChoice("Pick a number between 1 and 12!", 1, 12)
+        >>> guess = GetIntegerChoice("Pick a number between 1 and 12!", 1, 12)
         Pick a number between 1 and 12!
         (min = 1, max = 12)
         13
