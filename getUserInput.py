@@ -4,6 +4,11 @@
 This module contains tools for getting input from a user. At any point, enter "quit", "exit", or "leave" to quit()
 """
 _EXIT_WORDS = ["quit", "exit", "leave"]
+INT_ = "INT"
+FLOAT_ = "FLOAT"
+NUM = "NUM"
+STR_ = "STRING"
+
 
 def GetStringChoice(prompt, **kwoptions):
     """
@@ -104,63 +109,113 @@ def GetTrueFalse(prompt):
         return True
     return False
 
-def GetIntegerChoice(prompt, min_opt=1, max_opt=999999999):
+def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=NUM):
     """
-    Let the user choose a number from the min_opt to the max_opt. Return that number
-    
-    Default min = 1
-    Default max = 999,999,999 (almost a billion)
+    Return the user's choice of number.
 
-    Example (no min/max):
-        >>> guess = GetIntegerChoice("How scenarios did Doctor Strange see in Infinity War?")
-        How scenarios did Doctor Strange see in Infinity War?
-        (min = 1, max = 999,999,999)
-        Fourteen million
-        Please pick an integer.
-        How scenarios did Doctor Strange see in Infinity War?
-        (min = 1, max = 999,999,999)
-        14000605
-        >>> guess
-        14000605
-    
-    Example (with min/max):
-        >>> guess = GetIntegerChoice("Pick a number between 1 and 12!", 1, 12)
-        Pick a number between 1 and 12!
-        (min = 1, max = 12)
-        13
-        Please pick a number between 1 and 12.
-        Pick a number between 1 and 12!
-        (min = 1, max = 12)
-        2
-        >>> guess
-        2
+    If min_opt and max_opt == -1.0, don't restrict the range.
+    Otherwise, restrict to the range given.
 
+    Use data_type to determine what type of number to return.
+    Use the global INT_, FLOAT_, or NUM constants.
+    - ui.NUM: whatever type the user entered (this is the default)
+        >>> my_num = GetNumber("Pick a number:")
+        Pick a number:
+        5.0
+        >>> my_num
+        5.0
+        >>> my_num = GetNumber("Pick a number:")
+        Pick a number:
+        5
+        >>> my_num
+        5
+    - ui.INT_: integers
+        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.INT_)
+        Pick an integer: 
+        (min = 1, max = 10)
+        5.0
+        >>> my_num
+        5
+    - ui.FLOAT_: floats
+        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.FLOAT_)
+        Pick an integer: 
+        (min = 1, max = 10)
+        5
+        >>> my_num
+        5.0
     """
     prompt = _TruncateAtMax(prompt)
     
-    if min_opt == max_opt:
-        return max_opt
+    if min_opt==-1.0 and max_opt==-1.0:
+        #no range
+        try:
+            print(f"{prompt}")
+            num_choice = _AcceptAndValidateNumber()
+        except:
+            print("\nSomething went wrong...\n")
+            raise
+    else:
+        try:
+            print(f"{prompt}")
+            num_choice = GetNumberInRange(min_opt, max_opt)
+        except:
+            print("\nSomething went wrong...\n")
+            raise
     
+    if data_type == NUM:
+        return num_choice
+    elif data_type == FLOAT_:
+        return float(num_choice)
+    elif data_type == INT_:
+        return int(num_choice)
+
+def GetNumberInRange(min_opt, max_opt):
+    """
+    Let the user pick a number and return it as whatever data type the user used.
+    """
     while True:
         try:
-            num_choice = input("{0} \n(min = {1:,}, max = {2:,})\n".format(prompt, min_opt, max_opt))
+            if max_opt < min_opt:
+                min_opt, max_opt = max_opt, min_opt
+            if max_opt == min_opt:
+                return max_opt #ideally, this would raise an error. figure out what to raise here
             
-            if num_choice in _EXIT_WORDS:
-                quit()
-                
-            num_choice = int(float(num_choice))
-            if eval("{0}<={1}<={2}".format(min_opt, num_choice, max_opt)):
+            print(f"(min = {min_opt:,}, max = {max_opt:,})")
+            num_choice = _AcceptAndValidateNumber()
+
+            if eval(f"{min_opt}<={num_choice}<={max_opt}"):
                 return num_choice      
-            print("Please pick a number between {0} and {1}.".format(min_opt, max_opt),)
-        except ValueError:
-            print("Please pick an integer.")
+            print(f"Please pick a number between {min_opt} and {max_opt}.",)
         except SystemExit:
             _SysExitMsg()
         except:
             print("\nSomething went wrong...\n")
             raise
-    return None
-    
+
+def _AcceptAndValidateNumber():
+    """
+    Accept a user's choice of number, and then return it as a float or int.
+
+    Type is determined by whether the user includes a decimal point.
+    """
+    while True:
+        try:
+            num_choice = input()
+            if num_choice in _EXIT_WORDS:
+                _SysExitMsg()
+            
+            #return the corresponding number type
+            if num_choice.find(".") == -1:
+                return int(float(num_choice))
+            return float(num_choice)
+        except ValueError:
+            print("Please pick a number.")
+        except SystemExit:
+            raise
+        except:
+            print("\nSomething went wrong...\n")
+            raise
+
 def _TruncateAtMax(str, max_len=80, spacer=1):
     """
     Truncate a string at max length and continue on the next line. For example:
@@ -199,4 +254,4 @@ def _SysExitMsg(msg="Thanks!"):
     A consistent process for SystemExit error catching
     """
     print(msg)
-    raise #raise the SystemExit exception again to exit the program
+    raise SystemExit #raise the SystemExit exception again to exit the program
