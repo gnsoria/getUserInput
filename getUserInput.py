@@ -255,3 +255,42 @@ def _SysExitMsg(msg="Thanks!"):
     """
     print(msg)
     raise SystemExit #raise the SystemExit exception again to exit the program
+
+
+
+
+def main():
+    """
+    A demonstration function.
+    """
+    _demonstrateGetNumber()
+    _demonstrateGetStringChoice()
+
+def _demonstrateGetNumber():
+    print("""
+    Demonstration of GetNumber()
+    """)
+
+    GetNumber("Step right up and pick a number, any number!")
+
+    GetNumber("Only integers this time. Pick any integer!", data_type=INT_)
+    GetNumber("Now only an integer between 1 and 10!", 1, 10, data_type=INT_)
+    GetNumber("Now pick a float! (root beer not allowed)", data_type=FLOAT_)
+    GetNumber("And finally, a float between 1 and 10.", 1, 10, data_type=FLOAT_)
+    return None
+
+def _demonstrateGetStringChoice():
+    print("""
+    Demonstration of GetStringChoice()
+    """)
+
+    GetStringChoice("What does your mother smell of?", "e"="elderberries", "h"="hamster")
+
+    GetYesNo("That was just a little Python humor. Did you enjoy it?")
+
+    GetTrueFalse("Is it true that an African swallow could carry a coconut?")
+
+    return None
+
+if __name__ == "__main__":
+    main()
