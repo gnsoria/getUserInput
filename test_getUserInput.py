@@ -5,7 +5,7 @@ import getUserInput as ui
 
 class TestInputMethods(unittest.TestCase):
 
-    def test_GetUserInput(self):
+    def test_GetStringChoice(self):
         pass
     
     def test_GetYesNo_correct_input(self):
@@ -27,7 +27,7 @@ class TestInputMethods(unittest.TestCase):
     def test_GetTrueFalse(self):
         pass
             
-    def test_GetInteger(self):
+    def test_GetIntegerChoice(self):
         pass
     
 if __name__ == "__main__":
