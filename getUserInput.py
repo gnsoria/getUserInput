@@ -4,10 +4,13 @@
 This module contains tools for getting input from a user. At any point, enter "quit", "exit", or "leave" to quit()
 """
 _EXIT_WORDS = ["quit", "exit", "leave"]
+
+#Input mode constants
 INT_ = "INT"
 FLOAT_ = "FLOAT"
-NUM = "NUM"
+NUM_ = "NUM" #This doesn't require the underscore, but I kept it to match the other constants
 STR_ = "STRING"
+
 
 
 def GetStringChoice(prompt, **kwoptions):
@@ -49,12 +52,16 @@ def GetStringChoice(prompt, **kwoptions):
         Who is the strongest Avenger?
         ...
     """
-    space = max(map(len, kwoptions))
+    space = max(map(len, kwoptions)) #used to adjust the formatting for the longest kwoption
 
     while True:
         try:
             print(_TruncateAtMax(prompt))
             for key in kwoptions:
+                #The `space` var adjusts the section before the hypen to be as wide as the longest key.
+                #The _TruncateAtMax call adjusts the section after the hypen to be no longer than 60
+                #  characters, and indents any overflow lines so that they start at the same place
+                #  as the parent line starts.
                 print(" - '{0}' for '{1}'".format(key.ljust(space), \
                     _TruncateAtMax(kwoptions[key], max_len=60, spacer=space + 11)))
 
@@ -109,7 +116,7 @@ def GetTrueFalse(prompt):
         return True
     return False
 
-def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=NUM):
+def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=NUM_):
     """
     Return the user's choice of number.
 
@@ -117,8 +124,8 @@ def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=NUM):
     Otherwise, restrict to the range given.
 
     Use data_type to determine what type of number to return.
-    Use the global INT_, FLOAT_, or NUM constants.
-    - ui.NUM: whatever type the user entered (this is the default)
+    Use the global INT_, FLOAT_, or NUM_ constants.
+    - ui.NUM_: whatever type the user entered (this is the default)
         >>> my_num = GetNumber("Pick a number:")
         Pick a number:
         5.0
@@ -162,7 +169,7 @@ def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=NUM):
             print("\nSomething went wrong...\n")
             raise
     
-    if data_type == NUM:
+    if data_type == NUM_:
         return num_choice
     elif data_type == FLOAT_:
         return float(num_choice)
@@ -176,6 +183,8 @@ def GetNumberInRange(min_opt, max_opt):
     while True:
         try:
             if max_opt < min_opt:
+                #Switch the order if the maximum is less than the minimum. 
+                #  This is done for aesthetics 
                 min_opt, max_opt = max_opt, min_opt
             if max_opt == min_opt:
                 return max_opt #ideally, this would raise an error. figure out what to raise here
@@ -183,6 +192,7 @@ def GetNumberInRange(min_opt, max_opt):
             print(f"(min = {min_opt:,}, max = {max_opt:,})")
             num_choice = _AcceptAndValidateNumber()
 
+            #Check to see if the num_choice is valid in our range
             if eval(f"{min_opt}<={num_choice}<={max_opt}"):
                 return num_choice      
             print(f"Please pick a number between {min_opt} and {max_opt}.",)
@@ -270,13 +280,13 @@ def _demonstrateGetNumber():
     print("""
     Demonstration of GetNumber()
     """)
+    
+    print("Returns {0}\n".format(GetNumber("Step right up and pick a number, any number!")))
 
-    GetNumber("Step right up and pick a number, any number!")
-
-    GetNumber("Only integers this time. Pick any integer!", data_type=INT_)
-    GetNumber("Now only an integer between 1 and 10!", 1, 10, data_type=INT_)
-    GetNumber("Now pick a float! (root beer not allowed)", data_type=FLOAT_)
-    GetNumber("And finally, a float between 1 and 10.", 1, 10, data_type=FLOAT_)
+    print("Returns {0}\n".format(GetNumber("Only integers this time (decimals will be rounded). Pick any integer!", data_type=INT_)))
+    print("Returns {0}\n".format(GetNumber("Now only an integer between 1 and 10!", 1, 10, data_type=INT_)))
+    print("Returns {0}\n".format(GetNumber("Now pick a float! (root beer not allowed)", data_type=FLOAT_)))
+    print("Returns {0}\n".format(GetNumber("And finally, a float between 1 and 10.", 1, 10, data_type=FLOAT_)))
     return None
 
 def _demonstrateGetStringChoice():
@@ -284,11 +294,11 @@ def _demonstrateGetStringChoice():
     Demonstration of GetStringChoice()
     """)
 
-    GetStringChoice("What does your mother smell of?", e="elderberries", h="hamster")
+    print("Returns {0}\n".format(GetStringChoice("What does your mother smell of?", e="elderberries", h="hamster")))
 
-    GetYesNo("That was just a little Python humor. Did you enjoy it?")
+    print("Returns {0}\n".format(GetYesNo("That was just a little Python humor. Did you enjoy it?")))
 
-    GetTrueFalse("Is it true that an African swallow could carry a coconut?")
+    print("Returns {0}\n".format(GetTrueFalse("Is it true that an African swallow could carry a coconut?")))
 
     return None
 
