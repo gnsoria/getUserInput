@@ -284,7 +284,7 @@ def _demonstrateGetStringChoice():
     Demonstration of GetStringChoice()
     """)
 
-    GetStringChoice("What does your mother smell of?", "e"="elderberries", "h"="hamster")
+    GetStringChoice("What does your mother smell of?", e="elderberries", h="hamster")
 
     GetYesNo("That was just a little Python humor. Did you enjoy it?")
 
