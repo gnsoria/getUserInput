@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 
 """
-This module contains tools for getting input from a user. At any point, enter "quit", "exit", or "leave" to quit()
+This module contains tools for getting input from a user. At any point while getting input, the user may enter "quit", "exit", or "leave" to quit()
 """
 _EXIT_WORDS = ["quit", "exit", "leave"]
 
 #Input mode constants
 INT_ = "INT"
 FLOAT_ = "FLOAT"
-NUM_ = "NUM" #This doesn't require the underscore, but I kept it to match the other constants
+NUM_ = "NUM" #Unlike the others, this doesn't require the underscore, but I kept it to match
 STR_ = "STRING"
 
 
@@ -52,18 +52,26 @@ def GetStringChoice(prompt, **kwoptions):
         Who is the strongest Avenger?
         ...
     """
-    space = max(map(len, kwoptions)) #used to adjust the formatting for the longest kwoption
+    OPTION_TEMPLATE = " - '{0}' for '{1}'"
+    MAX_LINE_LEN = 60
+    PAD = len(OPTION_TEMPLATE) - 6 
+    # "- 6" in PAD removes the characters from the formatting brackets. I'm sure 
+    #   there's a better way of doing this... Previously I just hardcoded this to
+    #   be 11 (the number of characters always in OPTION_TEMPLATE) but that seemed
+    #   worse/less understandable
+
+    #This adjusts the section before the hyphen to be as wide as the longest key.
+    space = max(map(len, kwoptions))
 
     while True:
         try:
             print(_TruncateAtMax(prompt))
             for key in kwoptions:
-                #The `space` var adjusts the section before the hypen to be as wide as the longest key.
                 #The _TruncateAtMax call adjusts the section after the hypen to be no longer than 60
                 #  characters, and indents any overflow lines so that they start at the same place
                 #  as the parent line starts.
-                print(" - '{0}' for '{1}'".format(key.ljust(space), \
-                    _TruncateAtMax(kwoptions[key], max_len=60, spacer=space + 11)))
+                print(OPTION_TEMPLATE.format(key.ljust(space), \
+                    _TruncateAtMax(kwoptions[key], max_len=MAX_LINE_LEN, spacer=space + PAD)))
 
             user_choice = input("")
             if user_choice in kwoptions:
@@ -101,7 +109,7 @@ def GetYesNo(prompt):
 
 def GetTrueFalse(prompt):
     """
-    Calls GetStringChoice and only allows boolean response. Return True or False.
+    Calls GetStringChoice and only allows boolean response. Return boolean True or False.
 
     Example:
         >>> GetTrueFalse("True or False - Star-Lord was responsible for the team losing on Titan:")
@@ -261,7 +269,7 @@ def _TruncateAtMax(str, max_len=80, spacer=1):
 
 def _SysExitMsg(msg="Thanks!"):
     """
-    A consistent process for SystemExit error catching
+    A consistent process for SystemExit when a user enters one of the _EXIT_WORDS
     """
     print(msg)
     raise SystemExit #raise the SystemExit exception again to exit the program
