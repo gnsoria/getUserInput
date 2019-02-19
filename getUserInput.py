@@ -53,12 +53,8 @@ def GetStringChoice(prompt, **kwoptions):
         ...
     """
     OPTION_TEMPLATE = " - '{0}' for '{1}'"
+    PAD = len(OPTION_TEMPLATE.format("", ""))
     MAX_LINE_LEN = 60
-    PAD = len(OPTION_TEMPLATE) - 6 
-    # "- 6" in PAD removes the characters from the formatting brackets. I'm sure 
-    #   there's a better way of doing this... Previously I just hardcoded this to
-    #   be 11 (the number of characters always in OPTION_TEMPLATE) but that seemed
-    #   worse/less understandable
 
     #This adjusts the section before the hyphen to be as wide as the longest key.
     space = max(map(len, kwoptions))
@@ -70,14 +66,14 @@ def GetStringChoice(prompt, **kwoptions):
                 #The _TruncateAtMax call adjusts the section after the hypen to be no longer than 60
                 #  characters, and indents any overflow lines so that they start at the same place
                 #  as the parent line starts.
-                print(OPTION_TEMPLATE.format(key.ljust(space), \
+                print(OPTION_TEMPLATE.format(key.ljust(space),
                     _TruncateAtMax(kwoptions[key], max_len=MAX_LINE_LEN, spacer=space + PAD)))
 
-            user_choice = input("")
+            user_choice = input()
             if user_choice in kwoptions:
                 return user_choice
             elif user_choice in _EXIT_WORDS:
-                quit()
+                raise SystemExit
         
             print("That wasn't one of the options.",)
         except TypeError:
