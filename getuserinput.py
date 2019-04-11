@@ -2,11 +2,11 @@
 
 """
 This module contains tools for getting input from a user.
-At any point while getting input, the user may enter "quit",
-  "exit", or "leave" to quit()
+At any point while getting input, the user may enter "quit", "exit", or 
+  "leave" to raise a SystemExit exception and quit
 """
 
-from textwrap import fill
+import textwrap as tw
 from enum import Enum, auto
 
 _EXIT_WORDS = {"quit", "exit", "leave"}
@@ -73,28 +73,12 @@ def GetStringChoice(prompt, **kwoptions):
         Who is the strongest Avenger?
         ...
     """
-    OPTION_TEMPLATE = " - '{0:{1}}' for '{2}'"
-    # The 1 as the second arg below is filler because format won't allow 0
-    # -2 ensures that the subsequent indent lines up with the first char
-    STR_PADDING = len(OPTION_TEMPLATE.format("", 1, "")) - 2
-    MAX_LINE_LEN = 60
+    formatted_options = _get_formatted_options(**kwoptions)
 
-    # This adjusts the section before the "-" to be as wide as the longest key
-    space = max(map(len, kwoptions))
-
+    print(tw.fill(prompt))
     while True:
         try:
-            print(fill(prompt))
-            for key in kwoptions:
-                # This wraps the text at the max line length and pads the new
-                # lines so it looks nice.
-                pad_length = space + STR_PADDING
-                full_option = fill(
-                    kwoptions[key],
-                    width=MAX_LINE_LEN,
-                    subsequent_indent=" " * pad_length)
-
-                print(OPTION_TEMPLATE.format(key, space, full_option))
+            print(formatted_options)
 
             user_choice = input()
             if user_choice in kwoptions:
@@ -108,6 +92,33 @@ def GetStringChoice(prompt, **kwoptions):
             raise
         except SystemExit:
             _SysExitMsg()
+
+
+def _get_formatted_options(**kwoptions):
+    """Formats a dictionary of options and returns them as a string"""
+
+    OPTION_TEMPLATE = " - '{0:{1}}' for '{2}'"
+    # The 1 as the second arg below is filler because format won't allow 0
+    # -2 ensures that the subsequent indent lines up with the first char
+    STR_PADDING = len(OPTION_TEMPLATE.format("", 1, "")) - 2
+
+    # This is used to adjust the section before the "-" to be as wide as the
+    # longest key
+    space = max(map(len, kwoptions))
+    pad_length = space + STR_PADDING
+    
+    prompt_lines = []
+
+    for key in kwoptions:
+        # This wraps the text at the max line length and pads the new
+        # lines so it looks nice.
+        full_option = tw.fill(
+            kwoptions[key],
+            subsequent_indent=" " * pad_length)
+
+        prompt_lines.append(OPTION_TEMPLATE.format(key, space, full_option))
+    
+    return "\n".join(prompt_lines)
 
 
 def GetYesNo(prompt):
@@ -187,7 +198,7 @@ def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=OutputMode.NUM):
         >>> my_num
         5.0
     """
-    print(fill(prompt))
+    print(tw.fill(prompt))
 
     if min_opt == -1.0 and max_opt == -1.0:
         # No range given
@@ -208,17 +219,26 @@ def GetNumberInRange(min_opt, max_opt):
     Let the user pick a number
     Return it as whatever data type the user used
     """
+    
+    # This could live in a separate func but then it'd have to return the 
+    # min/max_opt
+    if max_opt < min_opt:
+        # Switch the order if the maximum is less than the minimum.
+        # This is done for aesthetics
+        min_opt, max_opt = max_opt, min_opt
+    
+    try:
+        if max_opt == min_opt:
+            # It makes no sense for these to be equal, so raise an error
+            raise ValueError
+    except ValueError as v:
+        print("\nThe min and max numbers should not be the same.\n")
+        raise v
+
+    print("(min = {0:,}, max = {1:,})".format(min_opt, max_opt))
+
     while True:
         try:
-            if max_opt < min_opt:
-                # Switch the order if the maximum is less than the minimum.
-                # This is done for aesthetics
-                min_opt, max_opt = max_opt, min_opt
-            if max_opt == min_opt:
-                # It makes no sense for these to be equal, so raise an error
-                raise ValueError
-
-            print("(min = {0:,}, max = {1:,})".format(min_opt, max_opt))
             num_choice = _AcceptAndValidateNumber()
 
             # Check to see if the num_choice is valid in our range
@@ -230,9 +250,6 @@ def GetNumberInRange(min_opt, max_opt):
                 # The comma here places the user's response on the same line
         except SystemExit:
             _SysExitMsg()
-        except ValueError as v:
-            print("\nThe min and max numbers should not be the same.\n")
-            raise v
         except Exception as e:
             print("\nSomething went wrong...\n")
             raise e
@@ -258,9 +275,9 @@ def _AcceptAndValidateNumber():
             print("Please pick a number.")
         except SystemExit:
             raise
-        except Exception:
+        except Exception as e:
             print("\nSomething went wrong...\n")
-            raise
+            raise e
 
 
 def _SysExitMsg(msg="Thanks!"):
