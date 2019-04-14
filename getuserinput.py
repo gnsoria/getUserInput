@@ -2,7 +2,7 @@
 
 """
 This module contains tools for getting input from a user.
-At any point while getting input, the user may enter "quit", "exit", or 
+At any point while getting input, the user may enter "quit", "exit", or
   "leave" to raise a SystemExit exception and quit
 """
 
@@ -84,14 +84,15 @@ def GetStringChoice(prompt, **kwoptions):
             if user_choice in kwoptions:
                 return user_choice
             elif user_choice in _EXIT_WORDS:
-                raise SystemExit
+                _SysExitMsg()
 
             print("That wasn't one of the options.",)
-        except TypeError:
-            print("\n\n")
-            raise
-        except SystemExit:
-            _SysExitMsg()
+        except TypeError as t:
+            raise t
+        except SystemExit as s:
+            raise s
+        except Exception as e:
+            raise e
 
 
 def _get_formatted_options(**kwoptions):
@@ -106,7 +107,7 @@ def _get_formatted_options(**kwoptions):
     # longest key
     space = max(map(len, kwoptions))
     pad_length = space + STR_PADDING
-    
+
     prompt_lines = []
 
     for key in kwoptions:
@@ -117,7 +118,7 @@ def _get_formatted_options(**kwoptions):
             subsequent_indent=" " * pad_length)
 
         prompt_lines.append(OPTION_TEMPLATE.format(key, space, full_option))
-    
+
     return "\n".join(prompt_lines)
 
 
@@ -149,9 +150,9 @@ def GetTrueFalse(prompt):
     Return boolean True or False.
 
     Example:
-        >>> GetTrueFalse("True or False - Star-Lord was responsible for"
+        >>> GetTrueFalse("True or False: Star-Lord was responsible for"
                          "the team losing on Titan:")
-        True or False - Star-Lord was responsible for the team losing on Titan:
+        True or False: Star-Lord was responsible for the team losing on Titan:
         - 't' for 'True'
         - 'f' for 'False'
         f
@@ -163,12 +164,13 @@ def GetTrueFalse(prompt):
     return False
 
 
-def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=OutputMode.NUM):
+def GetNumber(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
+              restrict_range=False):
     """
     Return the user's choice of number.
 
-    If min_opt and max_opt == -1.0, don't restrict the range.
-    Otherwise, restrict to the range given.
+    If restrict_range=False, don't restrict the range (deafult).
+    Otherwise, restrict answer to between min/max_opt.
 
     Use data_type to determine what type of number to return, passing in an
       OutputMode enum. Examples:
@@ -184,14 +186,16 @@ def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=OutputMode.NUM):
         >>> my_num
         5
     - ui.OutputMode.INT: integers
-        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.OutputMode.INT)
+        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.OutputMode.INT,
+                               restrict_range=False)
         Pick an integer:
         (min = 1, max = 10)
         5.0
         >>> my_num
         5
     - ui.OutputMode.FLOAT: floats
-        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.OutputMode.FLOAT)
+        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.OutputMode.FLOAT
+                               restrict_range=False)
         Pick an integer:
         (min = 1, max = 10)
         5
@@ -200,8 +204,8 @@ def GetNumber(prompt, min_opt=-1, max_opt=-1, data_type=OutputMode.NUM):
     """
     print(tw.fill(prompt))
 
-    if min_opt == -1.0 and max_opt == -1.0:
-        # No range given
+    if not restrict_range:
+        # User is not restricted to the min/max range
         num_choice = _AcceptAndValidateNumber()
     else:
         num_choice = GetNumberInRange(min_opt, max_opt)
@@ -219,21 +223,17 @@ def GetNumberInRange(min_opt, max_opt):
     Let the user pick a number
     Return it as whatever data type the user used
     """
-    
-    # This could live in a separate func but then it'd have to return the 
-    # min/max_opt
+
+    # This could live in a separate func but then it'd have to assign
+    # min/max_opt even when nothing changes
     if max_opt < min_opt:
         # Switch the order if the maximum is less than the minimum.
         # This is done for aesthetics
         min_opt, max_opt = max_opt, min_opt
-    
-    try:
-        if max_opt == min_opt:
-            # It makes no sense for these to be equal, so raise an error
-            raise ValueError
-    except ValueError as v:
-        print("\nThe min and max numbers should not be the same.\n")
-        raise v
+
+    if max_opt == min_opt:
+        # It makes no sense for these to be equal, so raise an error
+        raise ValueError("The min and max numbers should not be the same.\n")
 
     print("(min = {0:,}, max = {1:,})".format(min_opt, max_opt))
 
@@ -246,12 +246,11 @@ def GetNumberInRange(min_opt, max_opt):
                 return num_choice
             print("Please pick a number between {0} and {1}.".format(
                 min_opt,
-                max_opt),)
+                max_opt))
                 # The comma here places the user's response on the same line
-        except SystemExit:
-            _SysExitMsg()
+        except SystemExit as s:
+            raise s
         except Exception as e:
-            print("\nSomething went wrong...\n")
             raise e
 
 
@@ -272,11 +271,11 @@ def _AcceptAndValidateNumber():
                 return int(float(num_choice))
             return float(num_choice)
         except ValueError:
+            # Don't raise; just force the user back into the loop
             print("Please pick a number.")
-        except SystemExit:
-            raise
+        except SystemExit as s:
+            raise s
         except Exception as e:
-            print("\nSomething went wrong...\n")
             raise e
 
 
@@ -310,11 +309,18 @@ def _demonstrateGetNumber():
         "Pick any integer!",
         data_type=OutputMode.INT)))
     print("Returns {0}\n".format(GetNumber(
-        "Now only an integer between 1 and 10!", 1, 10, data_type=OutputMode.INT)))
+        prompt="Now only an integer in the range below!",
+        data_type=OutputMode.INT,
+        restrict_range=True)))
     print("Returns {0}\n".format(GetNumber(
-        "Now pick a float! (root beer not allowed)", data_type=OutputMode.FLOAT)))
+        "Now pick a float! (root beer not allowed)",
+        data_type=OutputMode.FLOAT)))
     print("Returns {0}\n".format(GetNumber(
-        "And finally, a float between 1 and 10.", 1, 10, data_type=OutputMode.FLOAT)))
+        prompt="And finally, a float in the given range:",
+        min_opt=1,
+        max_opt=50,
+        data_type=OutputMode.FLOAT,
+        restrict_range=True)))
     return None
 
 
