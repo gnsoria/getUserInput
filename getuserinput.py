@@ -77,22 +77,15 @@ def get_string_choice(prompt, **kwoptions):
 
     print(tw.fill(prompt))
     while True:
-        try:
-            print(formatted_options)
+        print(formatted_options)
 
-            user_choice = input()
-            if user_choice in kwoptions:
-                return user_choice
-            elif user_choice in _EXIT_WORDS:
-                _sys_exit_msg()
+        user_choice = input()
+        if user_choice in kwoptions:
+            return user_choice
+        elif user_choice in _EXIT_WORDS:
+            _sys_exit_msg()
 
-            print("That wasn't one of the options.",)
-        except TypeError as t:
-            raise t
-        except SystemExit as s:
-            raise s
-        except Exception as e:
-            raise e
+        print("That wasn't one of the options.",)
 
 
 def _get_formatted_options(**kwoptions):
@@ -247,11 +240,6 @@ def get_number_in_range(min_opt, max_opt):
             print("Please pick a number between {0} and {1}.".format(
                 min_opt,
                 max_opt))
-                # The comma here places the user's response on the same line
-        except SystemExit as s:
-            raise s
-        except Exception as e:
-            raise e
 
 
 def _accept_and_validate_number():
@@ -273,10 +261,6 @@ def _accept_and_validate_number():
         except ValueError:
             # Don't raise; just force the user back into the loop
             print("Please pick a number.")
-        except SystemExit as s:
-            raise s
-        except Exception as e:
-            raise e
 
 
 def _sys_exit_msg(msg="Thanks!"):
