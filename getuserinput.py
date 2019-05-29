@@ -21,7 +21,7 @@ class OutputMode(Enum):
     NUM = auto()
 
 
-def get_string_choice(prompt, **kwoptions):
+def get_string_choice(prompt, return_full_option=False, **kwoptions):
     """
     Print out the prompt and then return the input as long as it matches one
     of the options (given as key/value pairs)
@@ -81,7 +81,7 @@ def get_string_choice(prompt, **kwoptions):
 
         user_choice = input()
         if user_choice in kwoptions:
-            return user_choice
+            return user_choice if return_full_option is not True else kwoptions[user_choice]
         elif user_choice in _EXIT_WORDS:
             _sys_exit_msg()
 
@@ -115,7 +115,7 @@ def _get_formatted_options(**kwoptions):
     return "\n".join(prompt_lines)
 
 
-def get_yes_no(prompt):
+def get_yes_no(prompt, return_full_option=False):
     """
     Calls get_string_choice and only allows yes or no as response. Return y/n.
 
@@ -231,15 +231,14 @@ def get_number_in_range(min_opt, max_opt):
     print("(min = {0:,}, max = {1:,})".format(min_opt, max_opt))
 
     while True:
-        try:
-            num_choice = _accept_and_validate_number()
+        num_choice = _accept_and_validate_number()
 
-            # Check to see if the num_choice is valid in our range
-            if eval("{0}<={1}<={2}".format(min_opt, num_choice, max_opt)):
-                return num_choice
-            print("Please pick a number between {0} and {1}.".format(
-                min_opt,
-                max_opt))
+        # Check to see if the num_choice is valid in our range
+        if eval("{0}<={1}<={2}".format(min_opt, num_choice, max_opt)):
+            return num_choice
+        print("Please pick a number between {0} and {1}.".format(
+            min_opt,
+            max_opt))
 
 
 def _accept_and_validate_number():
