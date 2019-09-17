@@ -165,6 +165,39 @@ def get_true_false(prompt):
     return False
 
 
+def get_list_option(prompt, list_of_options, starting_number=1):
+    """
+    Given a list of options, generate a get_string_choice call where each
+    option is selected based on its index in the list.
+
+    zero_index=True means it'll start the options at 0. Set it to False to make
+    the options start at 1
+
+    Returns the full option from list_of_options
+
+    Example usage:
+        >>> get_list_option("What's your favorite letter?",
+                list(string.ascii_lowercase))
+        What's your favorite letter?
+         - '1 ' for 'a'
+         - '2 ' for 'b'
+         ...
+         - '25' for 'y'
+         - '26' for 'z'
+         19
+         's'
+         >>>
+    """
+    counter = starting_number
+    
+    options = dict()
+    for option in list_of_options:
+        options[str(counter)] = option
+        counter += 1
+    
+    return get_string_choice(prompt, return_full_option=True, **options)
+
+
 def get_number(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
               restrict_range=False):
     """
