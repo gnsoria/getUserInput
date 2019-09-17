@@ -11,6 +11,12 @@ from enum import Enum, auto
 
 _EXIT_WORDS = {"quit", "exit", "leave"}
 
+# Constants
+Y = 'y'
+N = 'n'
+YES = 'yes'
+NO = 'no'
+
 
 class OutputMode(Enum):
     """
@@ -118,6 +124,7 @@ def _get_formatted_options(**kwoptions):
 def get_yes_no(prompt, return_full_option=False):
     """
     Calls get_string_choice and only allows yes or no as response. Return y/n.
+    Returns the approrpriate the module constant Y, N, YES, or NO
 
     Example:
         >>> response = get_yes_no("Is Footloose still the greatest movie ever?")
@@ -134,7 +141,8 @@ def get_yes_no(prompt, return_full_option=False):
         'n'
 
     """
-    return get_string_choice(prompt, return_full_option, y="yes", n="no")
+    yes_no = {Y:YES, N:NO}
+    return get_string_choice(prompt, return_full_option, **yes_no)
 
 
 def get_true_false(prompt):
