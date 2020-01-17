@@ -303,6 +303,13 @@ def _accept_and_validate_number():
             print("Please pick a number.")
 
 
+def get_enum_option(prompt, given_enum):
+    """Given an enum, return the user's choice of enum option"""
+    enum_options = [opt.value for opt in given_enum]
+    choice = get_list_option(prompt, enum_options)
+    return given_enum(choice)
+
+
 def _sys_exit_msg(msg="Thanks!"):
     """
     A consistent process for SystemExit when a user enters one of the
