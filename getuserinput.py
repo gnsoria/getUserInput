@@ -11,17 +11,23 @@ from enum import Enum, auto
 
 _EXIT_WORDS = {"quit", "exit", "leave"}
 
+# Constants
+Y = 'y'
+N = 'n'
+YES = 'yes'
+NO = 'no'
+
 
 class OutputMode(Enum):
     """
-    Used to determine the output of the GetNumber function
+    Used to determine the output of the get_number function
     """
     INT = auto()
     FLOAT = auto()
     NUM = auto()
 
 
-def GetStringChoice(prompt, **kwoptions):
+def get_string_choice(prompt, return_full_option=False, **kwoptions):
     """
     Print out the prompt and then return the input as long as it matches one
     of the options (given as key/value pairs)
@@ -33,7 +39,7 @@ def GetStringChoice(prompt, **kwoptions):
                 "i":"Iron Man",
                 "c":"Captain America",
                 "h":"The Hulk"}
-        >>> response = GetStringChoice(prompt, **input_options)
+        >>> response = get_string_choice(prompt, **input_options)
         Who is the strongest Avenger?
          - 't' for 'Thor'
          - 'i' for 'Iron Man'
@@ -43,7 +49,7 @@ def GetStringChoice(prompt, **kwoptions):
         >>> response
         'h'
     Of course, you can also define the kwoptions in the call:
-        >>> response = GetStringChoice("Who is the strongest Avenger?",
+        >>> response = get_string_choice("Who is the strongest Avenger?",
                 t="Thor",
                 i="Iron Man",
                 c="Captain America",
@@ -58,7 +64,7 @@ def GetStringChoice(prompt, **kwoptions):
         'h'
 
     Invalid results are rejected:
-        >>> response = GetStringChoice("Who is the strongest Avenger?",
+        >>> response = get_string_choice("Who is the strongest Avenger?",
                 t="Thor",
                 i="Iron Man",
                 c="Captain America",
@@ -77,22 +83,15 @@ def GetStringChoice(prompt, **kwoptions):
 
     print(tw.fill(prompt))
     while True:
-        try:
-            print(formatted_options)
+        print(formatted_options)
 
-            user_choice = input()
-            if user_choice in kwoptions:
-                return user_choice
-            elif user_choice in _EXIT_WORDS:
-                _SysExitMsg()
+        user_choice = input()
+        if user_choice in kwoptions:
+            return user_choice if return_full_option is not True else kwoptions[user_choice]
+        elif user_choice in _EXIT_WORDS:
+            _sys_exit_msg()
 
-            print("That wasn't one of the options.",)
-        except TypeError as t:
-            raise t
-        except SystemExit as s:
-            raise s
-        except Exception as e:
-            raise e
+        print("That wasn't one of the options.",)
 
 
 def _get_formatted_options(**kwoptions):
@@ -122,12 +121,13 @@ def _get_formatted_options(**kwoptions):
     return "\n".join(prompt_lines)
 
 
-def GetYesNo(prompt):
+def get_yes_no(prompt, return_full_option=False):
     """
-    Calls GetStringChoice and only allows yes or no as response. Return y/n.
+    Calls get_string_choice and only allows yes or no as response. Return y/n.
+    Returns the approrpriate the module constant Y, N, YES, or NO
 
     Example:
-        >>> response = GetYesNo("Is Footloose still the greatest movie ever?")
+        >>> response = get_yes_no("Is Footloose still the greatest movie ever?")
         Is Footloose still the greatest movie ever?
         - 'y' for 'yes'
         - 'n' for 'no'
@@ -141,16 +141,17 @@ def GetYesNo(prompt):
         'n'
 
     """
-    return GetStringChoice(prompt, y="yes", n="no")
+    yes_no = {Y:YES, N:NO}
+    return get_string_choice(prompt, return_full_option, **yes_no)
 
 
-def GetTrueFalse(prompt):
+def get_true_false(prompt):
     """
-    Calls GetStringChoice and only allows boolean response.
+    Calls get_string_choice and only allows boolean response.
     Return boolean True or False.
 
     Example:
-        >>> GetTrueFalse("True or False: Star-Lord was responsible for"
+        >>> get_true_false("True or False: Star-Lord was responsible for"
                          "the team losing on Titan:")
         True or False: Star-Lord was responsible for the team losing on Titan:
         - 't' for 'True'
@@ -159,12 +160,45 @@ def GetTrueFalse(prompt):
         False
         >>>
     """
-    if GetStringChoice(prompt, t="True", f="False") == "t":
+    if get_string_choice(prompt, t="True", f="False") == "t":
         return True
     return False
 
 
-def GetNumber(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
+def get_list_option(prompt, list_of_options, starting_number=1):
+    """
+    Given a list of options, generate a get_string_choice call where each
+    option is selected based on its index in the list.
+
+    zero_index=True means it'll start the options at 0. Set it to False to make
+    the options start at 1
+
+    Returns the full option from list_of_options
+
+    Example usage:
+        >>> get_list_option("What's your favorite letter?",
+                list(string.ascii_lowercase))
+        What's your favorite letter?
+         - '1 ' for 'a'
+         - '2 ' for 'b'
+         ...
+         - '25' for 'y'
+         - '26' for 'z'
+         19
+         's'
+         >>>
+    """
+    counter = starting_number
+    
+    options = dict()
+    for option in list_of_options:
+        options[str(counter)] = option
+        counter += 1
+    
+    return get_string_choice(prompt, return_full_option=True, **options)
+
+
+def get_number(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
               restrict_range=False):
     """
     Return the user's choice of number.
@@ -175,18 +209,18 @@ def GetNumber(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
     Use data_type to determine what type of number to return, passing in an
       OutputMode enum. Examples:
     - ui.OutputMode.NUM: whatever type the user entered (this is the default)
-        >>> my_num = GetNumber("Pick a number:")
+        >>> my_num = get_number("Pick a number:")
         Pick a number:
         5.0
         >>> my_num
         5.0
-        >>> my_num = GetNumber("Pick a number:")
+        >>> my_num = get_number("Pick a number:")
         Pick a number:
         5
         >>> my_num
         5
     - ui.OutputMode.INT: integers
-        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.OutputMode.INT,
+        >>> my_num = get_number("Pick an integer:", 1, 10, ui.OutputMode.INT,
                                restrict_range=False)
         Pick an integer:
         (min = 1, max = 10)
@@ -194,7 +228,7 @@ def GetNumber(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
         >>> my_num
         5
     - ui.OutputMode.FLOAT: floats
-        >>> my_num = GetNumber("Pick an integer:", 1, 10, ui.OutputMode.FLOAT
+        >>> my_num = get_number("Pick an integer:", 1, 10, ui.OutputMode.FLOAT
                                restrict_range=False)
         Pick an integer:
         (min = 1, max = 10)
@@ -206,9 +240,9 @@ def GetNumber(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
 
     if not restrict_range:
         # User is not restricted to the min/max range
-        num_choice = _AcceptAndValidateNumber()
+        num_choice = _accept_and_validate_number()
     else:
-        num_choice = GetNumberInRange(min_opt, max_opt)
+        num_choice = get_number_in_range(min_opt, max_opt)
 
     if data_type == OutputMode.NUM:
         return num_choice
@@ -218,7 +252,7 @@ def GetNumber(prompt, min_opt=1, max_opt=10, data_type=OutputMode.NUM,
         return int(num_choice)
 
 
-def GetNumberInRange(min_opt, max_opt):
+def get_number_in_range(min_opt, max_opt):
     """
     Let the user pick a number
     Return it as whatever data type the user used
@@ -238,23 +272,17 @@ def GetNumberInRange(min_opt, max_opt):
     print("(min = {0:,}, max = {1:,})".format(min_opt, max_opt))
 
     while True:
-        try:
-            num_choice = _AcceptAndValidateNumber()
+        num_choice = _accept_and_validate_number()
 
-            # Check to see if the num_choice is valid in our range
-            if eval("{0}<={1}<={2}".format(min_opt, num_choice, max_opt)):
-                return num_choice
-            print("Please pick a number between {0} and {1}.".format(
-                min_opt,
-                max_opt))
-                # The comma here places the user's response on the same line
-        except SystemExit as s:
-            raise s
-        except Exception as e:
-            raise e
+        # Check to see if the num_choice is valid in our range
+        if eval("{0}<={1}<={2}".format(min_opt, num_choice, max_opt)):
+            return num_choice
+        print("Please pick a number between {0} and {1}.".format(
+            min_opt,
+            max_opt))
 
 
-def _AcceptAndValidateNumber():
+def _accept_and_validate_number():
     """
     Accept a user's choice of number, and then return it as a float or int.
 
@@ -264,7 +292,7 @@ def _AcceptAndValidateNumber():
         try:
             num_choice = input()
             if num_choice in _EXIT_WORDS:
-                _SysExitMsg()
+                _sys_exit_msg()
 
             # Return the corresponding number type
             if num_choice.find(".") == -1:
@@ -273,13 +301,9 @@ def _AcceptAndValidateNumber():
         except ValueError:
             # Don't raise; just force the user back into the loop
             print("Please pick a number.")
-        except SystemExit as s:
-            raise s
-        except Exception as e:
-            raise e
 
 
-def _SysExitMsg(msg="Thanks!"):
+def _sys_exit_msg(msg="Thanks!"):
     """
     A consistent process for SystemExit when a user enters one of the
     _EXIT_WORDS
@@ -292,30 +316,30 @@ def main():
     """
     A demonstration function.
     """
-    _demonstrateGetNumber()
-    _demonstrateGetStringChoice()
+    _demonstrate_get_number()
+    _demonstrate_get_string_choice()
 
 
-def _demonstrateGetNumber():
+def _demonstrate_get_number():
     print("""
-    Demonstration of GetNumber()
+    Demonstration of get_number()
     """)
 
-    print("Returns {0}\n".format(GetNumber(
+    print("Returns {0}\n".format(get_number(
         "Step right up and pick a number, any number!")))
 
-    print("Returns {0}\n".format(GetNumber(
+    print("Returns {0}\n".format(get_number(
         "Only integers this time (decimals will be rounded). "
         "Pick any integer!",
         data_type=OutputMode.INT)))
-    print("Returns {0}\n".format(GetNumber(
+    print("Returns {0}\n".format(get_number(
         prompt="Now only an integer in the range below!",
         data_type=OutputMode.INT,
         restrict_range=True)))
-    print("Returns {0}\n".format(GetNumber(
+    print("Returns {0}\n".format(get_number(
         "Now pick a float! (root beer not allowed)",
         data_type=OutputMode.FLOAT)))
-    print("Returns {0}\n".format(GetNumber(
+    print("Returns {0}\n".format(get_number(
         prompt="And finally, a float in the given range:",
         min_opt=1,
         max_opt=50,
@@ -324,21 +348,24 @@ def _demonstrateGetNumber():
     return None
 
 
-def _demonstrateGetStringChoice():
+def _demonstrate_get_string_choice():
     print("""
-    Demonstration of GetStringChoice()
+    Demonstration of get_string_choice()
     """)
+    DEMO_TEMPLATE = "Returns {}"
 
-    print("Returns {0}\n".format(GetStringChoice(
-        "What does your mother smell of?", e="elderberries", h="hamster")))
+    test_return = get_string_choice("What does your mother smell of?",
+                                    e="elderberries",
+                                    h="hamster")
+    print(DEMO_TEMPLATE.format(test_return))
 
-    print("Returns {0}\n".format(GetYesNo(
-        "That was just a little Python humor. Did you enjoy it?")))
+    test_return = get_yes_no(
+        "That was just a little Python humor. Did you enjoy it?")
+    print(DEMO_TEMPLATE.format(test_return))
 
-    print("Returns {0}\n".format(GetTrueFalse(
-        "Is it true that an African swallow could carry a coconut?")))
-
-    return None
+    test_return = get_true_false(
+        "Is it true that an African swallow could carry a coconut?")
+    print(DEMO_TEMPLATE.format(test_return))
 
 
 if __name__ == "__main__":
