@@ -303,10 +303,10 @@ def _accept_and_validate_number():
             print("Please pick a number.")
 
 
-def get_enum_option(prompt, given_enum):
+def get_enum_option(prompt, given_enum, starting_number=1):
     """Given an enum, return the user's choice of enum option"""
     enum_options = [opt.value for opt in given_enum]
-    choice = get_list_option(prompt, enum_options)
+    choice = get_list_option(prompt, enum_options, starting_number)
     return given_enum(choice)
 
 
